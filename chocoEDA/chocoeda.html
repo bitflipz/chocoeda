@@ -1,0 +1,434 @@
+<html>
+
+<head>
+<style type="text/css">
+.inline {
+  background-color: #f7f7f7;
+  border:solid 1px #B0B0B0;
+}
+.error {
+	font-weight: bold;
+	color: #FF0000;
+}
+.warning {
+	font-weight: bold;
+}
+.message {
+	font-style: italic;
+}
+.source, .output, .warning, .error, .message {
+	padding: 0 1em;
+  border:solid 1px #F7F7F7;
+}
+.source {
+  background-color: #f5f5f5;
+}
+.left {
+  text-align: left;
+}
+.right {
+  text-align: right;
+}
+.center {
+  text-align: center;
+}
+.hl.num {
+  color: #AF0F91;
+}
+.hl.str {
+  color: #317ECC;
+}
+.hl.com {
+  color: #AD95AF;
+  font-style: italic;
+}
+.hl.opt {
+  color: #000000;
+}
+.hl.std {
+  color: #585858;
+}
+.hl.kwa {
+  color: #295F94;
+  font-weight: bold;
+}
+.hl.kwb {
+  color: #B05A65;
+}
+.hl.kwc {
+  color: #55aa55;
+}
+.hl.kwd {
+  color: #BC5A65;
+  font-weight: bold;
+}
+</style>
+
+<title>Chocolate Ratings EDA</title>
+<center><h1>Chocolate Ratings EDA</h1></center>
+<center><p>Authors: Janusz Garscia 38653, Pola Orlowska 38670</p></center>
+
+
+<center><img src="https://d36tnp772eyphs.cloudfront.net/blogs/1/2019/10/Lindt-Swiss-Classic-Gold-Milk-chocolate-with-raisins-hazelnuts-and-almonds.jpg" alt ="choco" width="520" height="270"></center>
+
+
+</head>
+
+<body>
+
+<p>We have chosen to conduct EDA on a dataset containing ratings about <b>chocolate bars.</b></p>
+<a href="https://www.kaggle.com/rtatman/chocolate-bar-ratings">[Link to dataset]</a>
+
+<p>
+This dataset contains chocolate data and ratings on a scale from 1 to 5 (1795 rows, 9 cols). Among the data we can find:<br>
+- Company names and their locations.<br>
+- Bean types and their origin.<br>
+- Cocoa Percent which resembles the darkness of the chocolate.<br>
+- Date of reviewing.<br>
+- REF - how recent was the value entered into the database<br>
+<br>
+We want to examine & explore this dataset to see where does the best chocolate comes from, find some relation between rating and the composition.
+Which bean origin is the best, which country produces the best chocolate etc. Find a general understanding and explore the data.
+<br><br>
+RATING EXPLANATION:<br>
+5= Elite (Transcending beyond the ordinary limits)<br>
+4= Premium (Superior flavor development, character and style)<br>
+3= Satisfactory(3.0) to praiseworthy(3.75) (well made with special qualities)<br>
+2= Disappointing (Passable but contains at least one significant flaw)<br>
+1= Unpleasant (mostly unpalatable)<br>
+</p>
+
+<h2>Code</h2>
+
+<h4>Basic summaries & info</h4>
+
+<p>Import libraries</p>
+<div class="chunk" id="unnamed-chunk-1"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">library</span><span class="hl std">(tidyverse)</span>
+<span class="hl kwd">library</span><span class="hl std">(readr)</span>
+<span class="hl kwd">library</span><span class="hl std">(psych)</span>
+<span class="hl kwd">library</span><span class="hl std">(skimr)</span>
+</pre></div>
+</div></div>
+
+
+<p>Import dataset</p>
+<div class="chunk" id="unnamed-chunk-2"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">df</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">read_csv</span><span class="hl std">(</span><span class="hl str">'choco2.csv'</span><span class="hl std">)</span> <span class="hl com"># choco2 is a fixed dataset containing NA values instead of some weird &lt;U+633C&gt;&lt;U+3E32&gt; characters and fixed names.</span>
+<span class="hl kwd">names</span><span class="hl std">(df)</span><span class="hl kwb">&lt;-</span><span class="hl kwd">make.names</span><span class="hl std">(</span><span class="hl kwd">names</span><span class="hl std">(df),</span><span class="hl kwc">unique</span> <span class="hl std">=</span> <span class="hl num">TRUE</span><span class="hl std">)</span> <span class="hl com"># fix spaces in col names</span>
+<span class="hl std">df</span><span class="hl opt">$</span><span class="hl std">Cocoa.Percent</span> <span class="hl kwb">=</span> <span class="hl kwd">as.numeric</span><span class="hl std">(</span><span class="hl kwd">gsub</span><span class="hl std">(</span><span class="hl str">'%'</span><span class="hl std">,</span><span class="hl str">''</span><span class="hl std">,df</span><span class="hl opt">$</span><span class="hl std">Cocoa.Percent))</span>
+<span class="hl std">df</span><span class="hl opt">$</span><span class="hl std">Cocoa.Percent</span> <span class="hl kwb">=</span> <span class="hl std">df</span><span class="hl opt">$</span><span class="hl std">Cocoa.Percent</span><span class="hl opt">/</span><span class="hl num">100</span> <span class="hl com"># change into numeric percentages</span>
+</pre></div>
+</div></div>
+
+
+<p>A <i>glimpse</i> into the data</p>
+<div class="chunk" id="unnamed-chunk-3"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">head</span><span class="hl std">(df,</span> <span class="hl num">3</span><span class="hl std">)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## # A tibble: 3 x 9
+##   Company  Specific.Bean.Origin   REF Review.Date Cocoa.Percent Company.Location
+##   &lt;chr&gt;    &lt;chr&gt;                &lt;dbl&gt;       &lt;dbl&gt;         &lt;dbl&gt; &lt;chr&gt;           
+## 1 A. Morin Agua Grande           1876        2016          0.63 France          
+## 2 A. Morin Kpime                 1676        2015          0.7  France          
+## 3 A. Morin Atsane                1676        2015          0.7  France          
+## # ... with 3 more variables: Rating &lt;dbl&gt;, Bean.Type &lt;chr&gt;, Bean.Origin &lt;chr&gt;
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl kwd">tail</span><span class="hl std">(df,</span> <span class="hl num">3</span><span class="hl std">)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## # A tibble: 3 x 9
+##   Company Specific.Bean.Origin   REF Review.Date Cocoa.Percent Company.Location
+##   &lt;chr&gt;   &lt;chr&gt;                &lt;dbl&gt;       &lt;dbl&gt;         &lt;dbl&gt; &lt;chr&gt;           
+## 1 Zotter  Kerala State           749        2011          0.65 Austria         
+## 2 Zotter  Kerala State           781        2011          0.62 Austria         
+## 3 Zotter  Brazil, Mitzi Blue     486        2010          0.65 Austria         
+## # ... with 3 more variables: Rating &lt;dbl&gt;, Bean.Type &lt;chr&gt;, Bean.Origin &lt;chr&gt;
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl kwd">glimpse</span><span class="hl std">(df)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## Rows: 1,795
+## Columns: 9
+## $ Company              &lt;chr&gt; &quot;A. Morin&quot;, &quot;A. Morin&quot;, &quot;A. Morin&quot;, &quot;A. Morin&quot;, &quot;~
+## $ Specific.Bean.Origin &lt;chr&gt; &quot;Agua Grande&quot;, &quot;Kpime&quot;, &quot;Atsane&quot;, &quot;Akata&quot;, &quot;Quill~
+## $ REF                  &lt;dbl&gt; 1876, 1676, 1676, 1680, 1704, 1315, 1315, 1315, 1~
+## $ Review.Date          &lt;dbl&gt; 2016, 2015, 2015, 2015, 2015, 2014, 2014, 2014, 2~
+## $ Cocoa.Percent        &lt;dbl&gt; 0.63, 0.70, 0.70, 0.70, 0.70, 0.70, 0.70, 0.70, 0~
+## $ Company.Location     &lt;chr&gt; &quot;France&quot;, &quot;France&quot;, &quot;France&quot;, &quot;France&quot;, &quot;France&quot;,~
+## $ Rating               &lt;dbl&gt; 3.75, 2.75, 3.00, 3.50, 3.50, 2.75, 3.50, 3.50, 3~
+## $ Bean.Type            &lt;chr&gt; NA, NA, NA, NA, NA, &quot;Criollo&quot;, NA, &quot;Criollo&quot;, &quot;Cr~
+## $ Bean.Origin          &lt;chr&gt; &quot;Sao Tome&quot;, &quot;Togo&quot;, &quot;Togo&quot;, &quot;Togo&quot;, &quot;Peru&quot;, &quot;Vene~
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl kwd">sum</span><span class="hl std">(</span><span class="hl kwd">is.na</span><span class="hl std">(df))</span> <span class="hl com"># check for missing data mostly in Bean.Type and Origins, keep in mind for later.</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## [1] 962
+</pre></div>
+</div></div>
+
+<h4>Distribution and outliers</h4>
+
+<p>
+For cocoa distribution it seems that chocolate standard is 0.7 and most entries fall there and to the right of it. Right skew 1.06.
+</p>
+
+<div class="chunk" id="unnamed-chunk-4"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">x</span> <span class="hl kwb">=</span> <span class="hl std">df</span><span class="hl opt">$</span><span class="hl std">Cocoa.Percent</span>
+
+<span class="hl com"># summary</span>
+<span class="hl kwd">summary</span><span class="hl std">(x)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   0.420   0.700   0.700   0.717   0.750   1.000
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl kwd">describe</span><span class="hl std">(x)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">##    vars    n mean   sd median trimmed  mad  min max range skew kurtosis se
+## X1    1 1795 0.72 0.06    0.7    0.71 0.03 0.42   1  0.58 1.06     4.93  0
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl com"># rating</span>
+<span class="hl kwd">hist</span><span class="hl std">(x,</span> <span class="hl kwc">main</span> <span class="hl std">=</span> <span class="hl kwd">mtext</span><span class="hl std">(</span><span class="hl kwd">bquote</span><span class="hl std">(</span>
+  <span class="hl kwd">paste</span><span class="hl std">(</span><span class="hl kwd">bolditalic</span><span class="hl std">(</span><span class="hl str">&quot;median&quot;</span><span class="hl std">)</span> <span class="hl opt">==</span> <span class="hl kwd">.</span><span class="hl std">(</span><span class="hl kwd">round</span><span class="hl std">(</span><span class="hl kwd">median</span><span class="hl std">(x),</span><span class="hl num">1</span><span class="hl std">)),</span> <span class="hl str">&quot; (&quot;</span><span class="hl std">,</span>
+        <span class="hl kwd">bolditalic</span><span class="hl std">(</span><span class="hl str">&quot;mean&quot;</span><span class="hl std">)</span> <span class="hl opt">==</span> <span class="hl kwd">.</span><span class="hl std">(</span><span class="hl kwd">round</span><span class="hl std">(</span><span class="hl kwd">mean</span><span class="hl std">(x),</span><span class="hl num">1</span><span class="hl std">)),</span> <span class="hl str">&quot;)&quot;</span><span class="hl std">)</span>
+<span class="hl std">)),</span> <span class="hl kwc">xlab</span> <span class="hl std">=</span> <span class="hl str">&quot;Cocoa% Distribution&quot;</span><span class="hl std">,</span> <span class="hl kwc">xlim</span><span class="hl std">=</span><span class="hl kwd">range</span><span class="hl std">(x),</span> <span class="hl kwc">prob</span><span class="hl std">=</span><span class="hl num">TRUE</span><span class="hl std">)</span>
+<span class="hl kwd">rug</span><span class="hl std">(x)</span>
+<span class="hl kwd">abline</span><span class="hl std">(</span><span class="hl kwc">v</span> <span class="hl std">=</span> <span class="hl kwd">median</span><span class="hl std">(x),</span> <span class="hl kwc">col</span> <span class="hl std">=</span> <span class="hl str">&quot;red&quot;</span><span class="hl std">,</span> <span class="hl kwc">lwd</span><span class="hl std">=</span><span class="hl num">2</span><span class="hl std">)</span>
+<span class="hl kwd">lines</span><span class="hl std">(</span><span class="hl kwd">density</span><span class="hl std">(x))</span>
+</pre></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-4-1.png" title="plot of chunk unnamed-chunk-4" alt="plot of chunk unnamed-chunk-4" class="plot" /></div></div>
+
+
+
+<p>Taking a look at Rating distribution:<br><br>
+The distribution of the rating shows us that most of the chocolates got the rating of a bit higher than 3. Meaning that they are satisfactory or well made. There aren't many 5 rated chocolates (ELITE), but there are still enough 4 rated (PREMIUM) ones.<br>The plot is left-skewed with a negative skew of -0.58, althought the actual median and mean falls so close to each other, with mean being just slightly lower: Mean (3.186) < Median (3.250). It is hard to actually notice which way it is skewed just looking at the bars. In a dataset like this it is easier to see the distribution using the lines.
+<p>
+<div class="chunk" id="unnamed-chunk-5"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">x</span> <span class="hl kwb">=</span> <span class="hl std">df</span><span class="hl opt">$</span><span class="hl std">Rating</span>
+
+<span class="hl com"># summary</span>
+<span class="hl kwd">summary</span><span class="hl std">(x)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   1.000   2.875   3.250   3.186   3.500   5.000
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl kwd">describe</span><span class="hl std">(x)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">##    vars    n mean   sd median trimmed  mad min max range  skew kurtosis   se
+## X1    1 1795 3.19 0.48   3.25    3.21 0.37   1   5     4 -0.58     1.12 0.01
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl com"># rating</span>
+<span class="hl kwd">hist</span><span class="hl std">(x,</span> <span class="hl kwc">main</span> <span class="hl std">=</span> <span class="hl kwd">mtext</span><span class="hl std">(</span><span class="hl kwd">bquote</span><span class="hl std">(</span>
+  <span class="hl kwd">paste</span><span class="hl std">(</span><span class="hl kwd">bolditalic</span><span class="hl std">(</span><span class="hl str">&quot;median&quot;</span><span class="hl std">)</span> <span class="hl opt">==</span> <span class="hl kwd">.</span><span class="hl std">(</span><span class="hl kwd">round</span><span class="hl std">(</span><span class="hl kwd">median</span><span class="hl std">(x),</span><span class="hl num">1</span><span class="hl std">)),</span> <span class="hl str">&quot; (&quot;</span><span class="hl std">,</span>
+        <span class="hl kwd">bolditalic</span><span class="hl std">(</span><span class="hl str">&quot;mean&quot;</span><span class="hl std">)</span> <span class="hl opt">==</span> <span class="hl kwd">.</span><span class="hl std">(</span><span class="hl kwd">round</span><span class="hl std">(</span><span class="hl kwd">mean</span><span class="hl std">(x),</span><span class="hl num">1</span><span class="hl std">)),</span> <span class="hl str">&quot;)&quot;</span><span class="hl std">)</span>
+<span class="hl std">)),</span> <span class="hl kwc">xlab</span> <span class="hl std">=</span> <span class="hl str">&quot;Rating Distribution&quot;</span><span class="hl std">,</span> <span class="hl kwc">xlim</span><span class="hl std">=</span><span class="hl kwd">range</span><span class="hl std">(x),</span> <span class="hl kwc">prob</span><span class="hl std">=</span><span class="hl num">TRUE</span><span class="hl std">)</span>
+<span class="hl kwd">rug</span><span class="hl std">(x)</span>
+<span class="hl kwd">abline</span><span class="hl std">(</span><span class="hl kwc">v</span> <span class="hl std">=</span> <span class="hl kwd">median</span><span class="hl std">(x),</span> <span class="hl kwc">col</span> <span class="hl std">=</span> <span class="hl str">&quot;red&quot;</span><span class="hl std">,</span> <span class="hl kwc">lwd</span><span class="hl std">=</span><span class="hl num">2</span><span class="hl std">)</span>
+<span class="hl kwd">lines</span><span class="hl std">(</span><span class="hl kwd">density</span><span class="hl std">(x))</span>
+</pre></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-5-1.png" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" class="plot" /></div></div>
+
+<p>
+It is much easier to see the dataset left skewness using a boxplot. <br>It is due to the stretched left horizontal line, and the vertical one,
+which falls slightly to the right of the box. The dataset has its outliers which would fit the description of what Rating acutally means.
+They lie in about 1, 1.5, 1.75 and 5. With 1 meaning that it's unplatable and 5 is elite.
+<p>
+<div class="chunk" id="unnamed-chunk-6"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com"># rating boxplot</span>
+<span class="hl kwd">ggplot</span><span class="hl std">(</span><span class="hl kwc">data</span> <span class="hl std">= df,</span> <span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span> <span class="hl std">= Rating,</span> <span class="hl kwc">y</span> <span class="hl std">=</span> <span class="hl str">&quot;&quot;</span><span class="hl std">))</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_boxplot</span><span class="hl std">()</span>
+</pre></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-6-1.png" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" class="plot" /></div><div class="rcode">
+<div class="source"><pre class="knitr r"><span class="hl com"># We can extract the outliers using the following command:</span>
+<span class="hl kwd">boxplot.stats</span><span class="hl std">(df</span><span class="hl opt">$</span><span class="hl std">Rating)</span><span class="hl opt">$</span><span class="hl std">out</span>
+</pre></div>
+<div class="output"><pre class="knitr r">##  [1] 5.00 5.00 1.75 1.75 1.50 1.50 1.50 1.00 1.00 1.50 1.00 1.50 1.75 1.50 1.50
+## [16] 1.00 1.50 1.50 1.50
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl com"># Extracting row numbers</span>
+<span class="hl std">out</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">boxplot.stats</span><span class="hl std">(df</span><span class="hl opt">$</span><span class="hl std">Rating)</span><span class="hl opt">$</span><span class="hl std">out</span>
+<span class="hl std">out_ind</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">which</span><span class="hl std">(df</span><span class="hl opt">$</span><span class="hl std">Rating</span> <span class="hl opt">%in%</span> <span class="hl kwd">c</span><span class="hl std">(out))</span>
+<span class="hl std">out_ind</span>
+</pre></div>
+<div class="output"><pre class="knitr r">##  [1]   79   87  126  133  246  250  325  327  438  450  466  555  829  989 1130
+## [16] 1176 1412 1493 1695
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl com"># Inspecting outlier rows</span>
+<span class="hl std">df[out_ind, ]</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## # A tibble: 19 x 9
+##    Company    Specific.Bean.Or~   REF Review.Date Cocoa.Percent Company.Location
+##    &lt;chr&gt;      &lt;chr&gt;             &lt;dbl&gt;       &lt;dbl&gt;         &lt;dbl&gt; &lt;chr&gt;           
+##  1 Amedei     Chuao               111        2007          0.7  Italy           
+##  2 Amedei     Toscano Black        40        2006          0.7  Italy           
+##  3 Artisan d~ Venezuela           486        2010          1    U.K.            
+##  4 Artisan d~ Brazil Rio Doce     363        2009          0.72 U.K.            
+##  5 Bonnat     One Hundred          81        2006          1    France          
+##  6 Bouga Cac~ El Oro, Hacienda~   341        2009          1    Ecuador         
+##  7 Cacaoyere~ Pichincha           259        2008          0.91 Ecuador         
+##  8 Callebaut  Baking              141        2007          0.7  Belgium         
+##  9 Claudio C~ Principe            252        2008          1    Sao Tome        
+## 10 Coppeneur  Ecuador Puristiq~   817        2012          1    Germany         
+## 11 Cote d' O~ Sensations Inten~    48        2006          0.7  Belgium         
+## 12 Dolfin (B~ Noir                 63        2006          0.7  Belgium         
+## 13 Hotel Cho~ Island Growers, ~  1113        2013          1    U.K.            
+## 14 Machu Pic~ Peru                721        2011          0.7  Peru            
+## 15 Middlebury Houseblend          887        2012          0.65 U.S.A.          
+## 16 Neuhaus (~ Dark                135        2007          0.73 Belgium         
+## 17 S.A.I.D.   100 percent         615        2010          1    Italy           
+## 18 Snake &amp; B~ Ghana               693        2011          0.67 U.S.A.          
+## 19 Valrhona   Le Noir Extra Am~   147        2007          0.85 France          
+## # ... with 3 more variables: Rating &lt;dbl&gt;, Bean.Type &lt;chr&gt;, Bean.Origin &lt;chr&gt;
+</pre></div>
+</div></div>
+
+<br><br>
+<p>
+We can see that those outliers have bean types of Forastero and Trinitario, and sometimes their Darkness (Cocoa.Percent) reaches 100%. If we look at the ratings by bean type it also shows is these same types to be the worst ones.
+</p>
+
+<div class="chunk" id="unnamed-chunk-7"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">temp</span> <span class="hl kwb">&lt;-</span> <span class="hl std">dfbean</span> <span class="hl opt">%&gt;%</span> <span class="hl kwd">select</span><span class="hl std">(Bean.Type, Rating)</span> <span class="hl opt">%&gt;%</span> <span class="hl kwd">group_by</span><span class="hl std">(Bean.Type)</span> <span class="hl opt">%&gt;%</span> <span class="hl kwd">summarise_each</span><span class="hl std">(</span><span class="hl kwd">funs</span><span class="hl std">(mean))</span>
+</pre></div>
+<div class="error"><pre class="knitr r">## Error in select(., Bean.Type, Rating): object 'dfbean' not found
+</pre></div>
+</div></div>
+<div class="chunk" id="unnamed-chunk-8"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">temp[</span><span class="hl kwd">order</span><span class="hl std">(rated</span><span class="hl opt">$</span><span class="hl std">Rating,</span> <span class="hl kwc">decreasing</span> <span class="hl std">=</span> <span class="hl num">FALSE</span><span class="hl std">),]</span>
+</pre></div>
+<div class="error"><pre class="knitr r">## Error in eval(expr, envir, enclos): object 'temp' not found
+</pre></div>
+</div></div>
+
+<h4>Correlation</h4>
+<p>
+Investigating the matter further, we plot a correlation here regarding the darkness and the rating. We have found an inverse relation (negative correlation) of -0.16 - meaning that <b>the higher the Cocoa Percent the lower the rating</b>. There are no other correlations that could take place.
+</p>
+
+<div class="chunk" id="unnamed-chunk-9"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">corr</span> <span class="hl kwb">&lt;-</span> <span class="hl std">df</span> <span class="hl opt">%&gt;%</span>
+  <span class="hl kwd">select</span><span class="hl std">(REF, Cocoa.Percent, Rating, Review.Date)</span> <span class="hl com"># select only numerical</span>
+
+
+<span class="hl kwd">ggplot</span><span class="hl std">(df,</span> <span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=Cocoa.Percent,</span> <span class="hl kwc">y</span><span class="hl std">=Rating))</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_point</span><span class="hl std">(</span><span class="hl kwc">shape</span><span class="hl std">=</span><span class="hl num">1</span><span class="hl std">)</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_smooth</span><span class="hl std">(</span><span class="hl kwc">method</span><span class="hl std">=lm)</span>
+</pre></div>
+<div class="message"><pre class="knitr r">## `geom_smooth()` using formula 'y ~ x'
+</pre></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-9-1.png" title="plot of chunk unnamed-chunk-9" alt="plot of chunk unnamed-chunk-9" class="plot" /></div><div class="rcode">
+<div class="source"><pre class="knitr r"><span class="hl kwd">corPlot</span><span class="hl std">(corr,</span> <span class="hl kwc">upper</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">)</span>
+</pre></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-9-2.png" title="plot of chunk unnamed-chunk-9" alt="plot of chunk unnamed-chunk-9" class="plot" /></div></div>
+
+
+<h4>Where is the best chocolate?</h4>
+
+<p>
+The first thing we have to do here is to look at the all of unique entries. There are a lot of entries that are occuring only couple of times in the dataset or even one time in many cases. We need to get rid of those entries because they really mess with our data here. The companies and specific origin column mainly consist of entries like that so we will not conduct any examination on them.<br> We will focus only on bean type, bean origin and company location.
+</p>
+
+
+<div class="chunk" id="unnamed-chunk-10"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com"># lapply(df, table) check occurances, commented out because takes a lot of space</span>
+
+
+<span class="hl std">dforigin</span> <span class="hl kwb">&lt;-</span> <span class="hl std">df[</span><span class="hl opt">!</span><span class="hl kwd">is.na</span><span class="hl std">(df</span><span class="hl opt">$</span><span class="hl std">Bean.Origin),]</span> <span class="hl com"># filter out N/As</span>
+<span class="hl std">dforigin</span> <span class="hl kwb">&lt;-</span> <span class="hl std">dforigin</span> <span class="hl opt">%&gt;%</span> <span class="hl kwd">group_by</span><span class="hl std">(Bean.Origin)</span> <span class="hl opt">%&gt;%</span> <span class="hl kwd">filter</span><span class="hl std">(</span><span class="hl kwd">n</span><span class="hl std">()</span><span class="hl opt">&gt;</span><span class="hl num">15</span><span class="hl std">)</span> <span class="hl com"># filter less than 15</span>
+
+
+<span class="hl std">dfcountry</span> <span class="hl kwb">&lt;-</span> <span class="hl std">df[</span><span class="hl opt">!</span><span class="hl kwd">is.na</span><span class="hl std">(df</span><span class="hl opt">$</span><span class="hl std">Company.Location),]</span>
+<span class="hl std">dfcountry</span> <span class="hl kwb">&lt;-</span> <span class="hl std">dfcountry</span> <span class="hl opt">%&gt;%</span> <span class="hl kwd">group_by</span><span class="hl std">(Company.Location)</span> <span class="hl opt">%&gt;%</span> <span class="hl kwd">filter</span><span class="hl std">(</span><span class="hl kwd">n</span><span class="hl std">()</span><span class="hl opt">&gt;</span><span class="hl num">15</span><span class="hl std">)</span>
+
+
+<span class="hl std">dfbean</span> <span class="hl kwb">&lt;-</span> <span class="hl std">df[</span><span class="hl opt">!</span><span class="hl kwd">is.na</span><span class="hl std">(df</span><span class="hl opt">$</span><span class="hl std">Bean.Type),]</span>
+<span class="hl std">dfbean</span> <span class="hl kwb">&lt;-</span> <span class="hl std">dfbean</span> <span class="hl opt">%&gt;%</span> <span class="hl kwd">group_by</span><span class="hl std">(Bean.Type)</span> <span class="hl opt">%&gt;%</span> <span class="hl kwd">filter</span><span class="hl std">(</span><span class="hl kwd">n</span><span class="hl std">()</span><span class="hl opt">&gt;</span><span class="hl num">15</span><span class="hl std">)</span>
+
+
+
+
+<span class="hl com">#origin</span>
+<span class="hl kwd">ggplot</span><span class="hl std">(</span><span class="hl kwc">data</span> <span class="hl std">= dforigin,</span> <span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span> <span class="hl std">= Rating,</span> <span class="hl kwc">y</span> <span class="hl std">= Bean.Origin))</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_boxplot</span><span class="hl std">()</span>
+</pre></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-10-1.png" title="plot of chunk unnamed-chunk-10" alt="plot of chunk unnamed-chunk-10" class="plot" /></div><div class="rcode">
+<div class="source"><pre class="knitr r"><span class="hl std">temp</span> <span class="hl kwb">&lt;-</span> <span class="hl std">dforigin</span> <span class="hl opt">%&gt;%</span> <span class="hl kwd">select</span><span class="hl std">(Bean.Origin, Rating)</span> <span class="hl opt">%&gt;%</span> <span class="hl kwd">group_by</span><span class="hl std">(Bean.Origin)</span> <span class="hl opt">%&gt;%</span> <span class="hl kwd">summarise_each</span><span class="hl std">(</span><span class="hl kwd">funs</span><span class="hl std">(mean))</span>
+</pre></div>
+<div class="warning"><pre class="knitr r">## Warning: `funs()` was deprecated in dplyr 0.8.0.
+## Please use a list of either functions or lambdas: 
+## 
+##   # Simple named list: 
+##   list(mean = mean, median = median)
+## 
+##   # Auto named with `tibble::lst()`: 
+##   tibble::lst(mean, median)
+## 
+##   # Using lambdas
+##   list(~ mean(., trim = .2), ~ median(., na.rm = TRUE))
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl std">temp[</span><span class="hl kwd">order</span><span class="hl std">(temp</span><span class="hl opt">$</span><span class="hl std">Rating,</span> <span class="hl kwc">decreasing</span> <span class="hl std">=</span> <span class="hl num">TRUE</span><span class="hl std">),]</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## # A tibble: 23 x 2
+##    Bean.Origin        Rating
+##    &lt;chr&gt;               &lt;dbl&gt;
+##  1 Guatemala            3.32
+##  2 Vietnam              3.32
+##  3 Papua New Guinea     3.29
+##  4 Brazil               3.28
+##  5 Madagascar           3.27
+##  6 Venezuela            3.25
+##  7 Belize               3.23
+##  8 Colombia             3.22
+##  9 Hawaii               3.21
+## 10 Dominican Republic   3.21
+## # ... with 13 more rows
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl com">#country</span>
+<span class="hl kwd">ggplot</span><span class="hl std">(</span><span class="hl kwc">data</span> <span class="hl std">= dfcountry,</span> <span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span> <span class="hl std">= Rating,</span> <span class="hl kwc">y</span> <span class="hl std">= Company.Location))</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_boxplot</span><span class="hl std">()</span>
+</pre></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-10-2.png" title="plot of chunk unnamed-chunk-10" alt="plot of chunk unnamed-chunk-10" class="plot" /></div><div class="rcode">
+<div class="source"><pre class="knitr r"><span class="hl std">temp</span> <span class="hl kwb">&lt;-</span> <span class="hl std">dfcountry</span> <span class="hl opt">%&gt;%</span> <span class="hl kwd">select</span><span class="hl std">(Company.Location, Rating)</span> <span class="hl opt">%&gt;%</span> <span class="hl kwd">group_by</span><span class="hl std">(Company.Location)</span> <span class="hl opt">%&gt;%</span> <span class="hl kwd">summarise_each</span><span class="hl std">(</span><span class="hl kwd">funs</span><span class="hl std">(mean))</span>
+<span class="hl std">temp[</span><span class="hl kwd">order</span><span class="hl std">(temp</span><span class="hl opt">$</span><span class="hl std">Rating,</span> <span class="hl kwc">decreasing</span> <span class="hl std">=</span> <span class="hl num">TRUE</span><span class="hl std">),]</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## # A tibble: 20 x 2
+##    Company.Location Rating
+##    &lt;chr&gt;             &lt;dbl&gt;
+##  1 Brazil             3.40
+##  2 Australia          3.36
+##  3 Switzerland        3.34
+##  4 Italy              3.33
+##  5 Canada             3.32
+##  6 Spain              3.27
+##  7 France             3.25
+##  8 Austria            3.24
+##  9 Hungary            3.20
+## 10 New Zealand        3.19
+## 11 Germany            3.18
+## 12 Venezuela          3.18
+## 13 Colombia           3.17
+## 14 U.S.A.             3.15
+## 15 Madagascar         3.15
+## 16 Belgium            3.09
+## 17 Japan              3.09
+## 18 U.K.               3.05
+## 19 Ecuador            3.01
+## 20 Peru               2.90
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl com">#bean type</span>
+<span class="hl kwd">ggplot</span><span class="hl std">(</span><span class="hl kwc">data</span> <span class="hl std">= dfbean,</span> <span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span> <span class="hl std">= Rating,</span> <span class="hl kwc">y</span> <span class="hl std">= Bean.Type))</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_boxplot</span><span class="hl std">()</span>
+</pre></div>
+</div><div class="rimage default"><img src="figure/unnamed-chunk-10-3.png" title="plot of chunk unnamed-chunk-10" alt="plot of chunk unnamed-chunk-10" class="plot" /></div><div class="rcode">
+<div class="source"><pre class="knitr r"><span class="hl std">temp</span> <span class="hl kwb">&lt;-</span> <span class="hl std">dfbean</span> <span class="hl opt">%&gt;%</span> <span class="hl kwd">select</span><span class="hl std">(Bean.Type, Rating)</span> <span class="hl opt">%&gt;%</span> <span class="hl kwd">group_by</span><span class="hl std">(Bean.Type)</span> <span class="hl opt">%&gt;%</span> <span class="hl kwd">summarise_each</span><span class="hl std">(</span><span class="hl kwd">funs</span><span class="hl std">(mean))</span>
+<span class="hl std">temp[</span><span class="hl kwd">order</span><span class="hl std">(temp</span><span class="hl opt">$</span><span class="hl std">Rating,</span> <span class="hl kwc">decreasing</span> <span class="hl std">=</span> <span class="hl num">TRUE</span><span class="hl std">),]</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## # A tibble: 7 x 2
+##   Bean.Type            Rating
+##   &lt;chr&gt;                 &lt;dbl&gt;
+## 1 Blend                  3.35
+## 2 Criollo, Trinitario    3.29
+## 3 Forastero (Nacional)   3.27
+## 4 Trinitario             3.25
+## 5 Criollo                3.24
+## 6 Forastero              3.10
+## 7 Forastero (Arriba)     2.83
+</pre></div>
+</div></div>
+
+<p>
+Thanks
+</p>
+
+
+
+
+</body>
+</html>
